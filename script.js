@@ -98,7 +98,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const droppedEmojiText = document.getElementById(draggedEmojiId).textContent;
             const word = document.getElementById(draggedEmojiId).id.replace('emoji-', '')
             
-            if (pairs[headlineId].emojis[slotIndex].emoji === droppedEmojiText) {
+            if (pairs[headlineId].emojis[slotIndex].emoji === droppedEmojiText
+               && pairs[headlineId].emojis[slotIndex].word === word) {
                 // Correct match
                 dropZone.textContent = word;
                 dropZone.classList.add('filled');
