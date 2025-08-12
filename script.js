@@ -100,15 +100,12 @@ document.addEventListener('DOMContentLoaded', () => {
             
             if (pairs[headlineId].emojis[slotIndex].emoji === droppedEmojiText) {
                 // Correct match
-                console.log(word)
-		console.log( pairs[headlineId].emojis[slotIndex].word)
-		if (word != pairs[headlineId].emojis[slotIndex].word) {
-                    console.log("not match")
-	       	    dropZone.textContent = pairs[headlineId].emojis[slotIndex].word
-                } else {
-                dropZone.textContent = word;
-		}
-		dropZone.classList.add('filled');
+				if (word != pairs[headlineId].emojis[slotIndex].word) {
+						dropZone.textContent = pairs[headlineId].emojis[slotIndex].word
+						} else {
+						dropZone.textContent = word;
+				}
+				dropZone.classList.add('filled');
                 document.getElementById(draggedEmojiId).classList.add('hide');
 
                 const allSlots = document.querySelectorAll(`[data-headline-id="${headlineId}"]`);
