@@ -1,0 +1,92 @@
+body {
+    font-family: sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    margin: 0;
+    background-color: #f0f2f5;
+}
+
+.game-board {
+    display: flex;
+    gap: 20px;
+}
+
+.emojis, .headlines {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.emoji-card {
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    cursor: pointer;
+    text-align: center;
+    font-size: 2em;
+    transition: transform 0.2s;
+}
+
+.headline-card {
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    text-align: left;
+    font-size: 1.2em;
+}
+
+.emoji-slot {
+    display: inline-block;
+    width: auto; /* Adjust to content width */
+    min-width: 30px;
+    padding: 0 5px;
+    border-bottom: 2px solid #ccc; /* Use border-bottom for the underline effect */
+    margin: 0 5px;
+    vertical-align: middle;
+    text-align: center;
+    font-size: 1.5em;
+    font-family: monospace; /* Use a fixed-width font for consistent spacing */
+    cursor: grab;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.emoji-slot.drag-over {
+    background-color: #e6f2ff;
+    border-color: #007aff;
+}
+
+.emoji-slot.filled {
+    border-bottom: none;
+    cursor: default;
+}
+
+.match {
+    background-color: #d4edda;
+    border-color: #c3e6cb;
+    pointer-events: none;
+}
+
+.hide {
+    display: none;
+}
+
+.emoji-slot.flash-red {
+    background-color: #ffcccc;
+    border-color: #cc0000;
+    animation: flash 0.5s ease-in-out;
+}
+
+@keyframes flash {
+    0% { background-color: #ffcccc; }
+    50% { background-color: #f0f2f5; }
+    100% { background-color: #ffcccc; }
+}
+
+
