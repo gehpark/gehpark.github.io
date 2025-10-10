@@ -84,7 +84,10 @@
         .direction {
             font-size: 18px;
             font-weight: 600;
-            color: #333;
+            color: white;
+            background: #0039A6;
+            padding: 8px 12px;
+            border-radius: 20px;
         }
 
         .time {
@@ -159,6 +162,7 @@
     </div>
 
     <script>
+
         function displayTrains(trains, containerId) {
             const container = document.getElementById(containerId);
             
@@ -207,7 +211,7 @@
             } catch (error) {
                 console.error('Error loading train data:', error);
                 document.getElementById('errorContainer').innerHTML = 
-                    `<div class="error">Cannot connect to server. Make sure Node.js server is running on port 3000.</div>`;
+                    `<div class="error">Cannot connect to server.</div>`;
             }
 
             updateLastUpdated();

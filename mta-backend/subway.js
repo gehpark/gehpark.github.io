@@ -16,11 +16,10 @@ import esMain from 'es-main';
  
 
 app.use(cors({
-  origin:['https://gehpark.github.io','http://gehpark.github.io']
+  origin:['https://gehpark.github.io','http://gehpark.github.io','http://localhost:8000', 'https://localhost:8000']
 }));
 
 app.get('/api/trains', async (req, res) => {
-  // res.set('Access-Control-Allow-Origin', 'http://gehpark.github.io');
   try {
     const arrivals = await getTrainArrivals();
     res.json({
