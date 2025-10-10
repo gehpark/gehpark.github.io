@@ -14,12 +14,15 @@
         }
 
         .dashboard {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
+            display: flex;
             gap: 20px;
             max-width: 1400px;
             margin: 0 auto;
             height: calc(100vh - 40px);
+        }
+
+        .column {
+        	flex:1;
         }
 
         .clock-section {
@@ -84,11 +87,12 @@
 
   <body> 
   	<div class="dashboard">
+     	<div class="column">
      	<div class="clock-section">
 	        <div class="digital-clock" id="digitalClock">00:00</div>
 	        <div class="date-display" id="dateDisplay">Loading...</div>
-	    </div>
-	     <div id="mta-section"></div>
+	    </div></div>
+     	<div class="column" id="mta-section"></div>
 	 </div>
   </body> 
 
