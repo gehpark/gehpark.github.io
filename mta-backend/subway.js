@@ -16,7 +16,7 @@ import esMain from 'es-main';
  
 
 app.use(cors({
-  origin:'https://gehpark.github.io/'
+  origin:'https://gehpark.github.io'
 }));
 
 app.get('/api/trains', async (req, res) => {
