@@ -7,12 +7,6 @@
             box-sizing: border-box;
         }
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            min-height: 100vh;
-            padding: 20px;
-        }
-
         .dashboard {
             display: flex;
             gap: 20px;
@@ -28,7 +22,9 @@
         .clock-section {
             background: white;
             border-radius: 15px;
-            padding: 40px;
+            padding: 20px;
+            padding-top: 250px;
+            padding-bottom: 150px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.2);
             display: flex;
             flex-direction: column;
@@ -37,16 +33,17 @@
         }
 
         .digital-clock {
-            font-size: 120px;
+            font-size: 160px;
             font-weight: bold;
-            font-family: 'Courier New', monospace;
+            font-family: 'Times New Roman', monospace;
             letter-spacing: 10px;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
         }
 
         .date-display {
-            font-size: 32px;
+            font-size: 58px;
             color: #666;
+            font-family: 'Times New Roman', monospace;
             margin-top: 20px;
             font-weight: 300;
         }
@@ -58,7 +55,7 @@
             }
 
             .digital-clock {
-                font-size: 80px;
+                font-size: 140px;
             }
 
             .date-display {
@@ -107,7 +104,7 @@
         document.getElementById('digitalClock').textContent = `${hours}:${minutes}`;
         
         // Update date
-        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+        const options = { weekday: 'short', month: 'short', day: 'numeric' };
         const dateString = now.toLocaleDateString('en-US', options);
         document.getElementById('dateDisplay').textContent = dateString;
     }
