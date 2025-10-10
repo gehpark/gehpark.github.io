@@ -15,7 +15,9 @@ import GtfsRealtimeBindings from 'gtfs-realtime-bindings';
 import esMain from 'es-main';
  
 
-app.use(cors()); // Enable CORS for your frontend
+app.use(cors({
+  origin:'https://gehpark.github.io/'
+}));
 
 app.get('/api/trains', async (req, res) => {
   try {
@@ -36,7 +38,7 @@ app.get('/api/trains', async (req, res) => {
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
-  console.log(`Access train data at: <host>:${PORT}/api/trains`);
+  console.log(`Access train data at: https://gehpark-github-io.onrender.com/:${PORT}/api/trains`);
 });
 
 if (esMain(import.meta)) {

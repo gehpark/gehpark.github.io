@@ -191,8 +191,9 @@
         async function loadTrainData() {
             console.log("Loading train data...");
             try {
+                // local test line
                 // const response = await fetch('http://localhost:3000/api/trains');
-                const response = await fetch('https://gehpark.github.io/api/trains')
+                const response = await fetch('https://gehpark-github-io.onrender.com/api/trains')
                 const result = await response.json();
                 
                 if (result.success) {
