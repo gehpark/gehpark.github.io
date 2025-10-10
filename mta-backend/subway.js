@@ -20,6 +20,7 @@ app.use(cors({
 }));
 
 app.get('/api/trains', async (req, res) => {
+  res.set('Access-Control-Allow-Origin', 'http://gehpark.github.io');
   try {
     const arrivals = await getTrainArrivals();
     res.json({
