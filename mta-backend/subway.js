@@ -99,7 +99,7 @@ function parseTrainArrivals(feed) {
         if (!arrivalTime) return;
 
         // Calculate minutes until arrival
-        const minutesUntilArrival = (arrivalTime - now) / 60;
+        const minutesUntilArrival = Math.floor((arrivalTime - now) / 60);
 
         // Only include trains arriving in the future (within next 30 minutes)
         if (minutesUntilArrival >= 0 && minutesUntilArrival <= 30) {
