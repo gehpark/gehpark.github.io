@@ -1,0 +1,115 @@
+<html> 
+  <head> 
+  	<style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+            height: calc(100vh - 40px);
+        }
+
+        .clock-section {
+            background: white;
+            border-radius: 15px;
+            padding: 40px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .digital-clock {
+            font-size: 120px;
+            font-weight: bold;
+            font-family: 'Courier New', monospace;
+            letter-spacing: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .date-display {
+            font-size: 32px;
+            color: #666;
+            margin-top: 20px;
+            font-weight: 300;
+        }
+
+        @media (max-width: 1024px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+                height: auto;
+            }
+
+            .digital-clock {
+                font-size: 80px;
+            }
+
+            .date-display {
+                font-size: 24px;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .digital-clock {
+                font-size: 60px;
+                letter-spacing: 5px;
+            }
+
+            .date-display {
+                font-size: 18px;
+            }
+        }
+    </style>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script> 
+    $(function(){
+      $("#mta-section").load("subway.html"); 
+    });
+    </script> 
+  </head> 
+
+  <body> 
+  	<div class="dashboard">
+     	<div class="clock-section">
+	        <div class="digital-clock" id="digitalClock">00:00</div>
+	        <div class="date-display" id="dateDisplay">Loading...</div>
+	    </div>
+	     <div id="mta-section"></div>
+	 </div>
+  </body> 
+
+  <script>
+  	// Clock functionality
+    function updateClock() {
+        const now = new Date();
+        
+        // Update digital clock (HH:MM)
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        document.getElementById('digitalClock').textContent = `${hours}:${minutes}`;
+        
+        // Update date
+        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+        const dateString = now.toLocaleDateString('en-US', options);
+        document.getElementById('dateDisplay').textContent = dateString;
+    }
+
+    // Update clock immediately and every second
+    updateClock();
+    setInterval(updateClock, 1000);
+  </script>
+</html>
