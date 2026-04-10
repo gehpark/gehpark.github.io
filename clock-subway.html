@@ -94,7 +94,7 @@
   </body> 
 
   <script>
-  	// Clock functionality
+
     function updateClock() {
         const now = new Date();
         
@@ -107,10 +107,41 @@
         const options = { weekday: 'short', month: 'short', day: 'numeric' };
         const dateString = now.toLocaleDateString('en-US', options);
         document.getElementById('dateDisplay').textContent = dateString;
+
+        // 1. Calculate the delay for the NEXT execution
+        const delay = getNextDelay();
+
+        // 2. Schedule the next run
+        setTimeout(updateClock, delay);
     }
 
-    // Update clock immediately and every second
+    function getNextDelay() {
+        const now = new Date();
+        const day = now.getDay(); // 0 (Sun) to 6 (Sat)
+        const hour = now.getHours();
+        const isWeekend = (day === 0 || day === 6);
+
+        // Weekend Logic: 1 minute all day
+        if (isWeekend) {
+            return 60 * 1000;
+        }
+
+        // Weekday Logic (Monday - Friday)
+        if (hour >= 8 && hour < 10) {
+            return 20 * 1000; // 20 seconds
+        } 
+        else if (hour >= 10 && hour < 11) {
+            return 40 * 1000; // 40 seconds
+        } 
+        else if (hour >= 11 || hour < 1) {
+            return 60 * 1000; // 1 minute (11am to 1am)
+        } 
+        else {
+            return 10 * 60 * 1000; // 10 minutes (1am to 8am)
+        }
+    }
+
+    // Start the cycle
     updateClock();
-    setInterval(updateClock, 1000);
   </script>
 </html>
