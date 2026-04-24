@@ -422,51 +422,27 @@
 </main>
 
 <script>
-const BACKEND = 'https://gehpark-github-io.onrender.com/api/trains';
+  const BACKEND = 'https://gehpark-github-io.onrender.com/api/trains';
 
-// Stop IDs for southbound (toward Brooklyn) on the C line
-// Format: StopId + 'S' = southbound
 const STATIONS = [
-  { name: '59 St–Columbus Circle', stopId: 'A27S', transfers: ['A','B','D','1'] },
-  { name: '50 St',                  stopId: 'A28S', transfers: ['E'] },
-  { name: '42 St–Port Authority',   stopId: 'A30S', transfers: ['A','E','N','Q','R','W','1','2','3','7','S'] },
-  { name: '34 St–Penn Station',     stopId: 'A31S', transfers: ['A','E','LIRR','NJT','Amtrak'] },
-  { name: '23 St',                  stopId: 'A32S', transfers: ['E'] },
-  { name: '14 St',                  stopId: 'A33S', transfers: ['A','E','L'] },
-  { name: 'West 4 St–Washington Sq',stopId: 'A34S', transfers: ['A','E','B','D','F','M'] },
-  { name: 'Spring St',              stopId: 'A36S', transfers: ['E'] },
-  { name: 'Canal St',               stopId: 'A38S', transfers: ['A','E'] },
-  { name: 'Chambers St',            stopId: 'A40S', transfers: ['A','E','2','3','R','W'] },
-  { name: 'Fulton St',              stopId: 'A41S', transfers: ['A','2','3','4','5','J','Z'] },
-  { name: 'High St',                stopId: 'A42S', transfers: ['A'] },
-  { name: 'Jay St–MetroTech',       stopId: 'A41S', transfers: ['A','F','R'] }, // A41S shared
-  { name: 'Hoyt–Schermerhorn Sts',  stopId: 'A42S', transfers: ['A','G'] },
-  { name: 'Lafayette Av',           stopId: 'A43S', transfers: [] },
-  { name: 'Clinton–Washington Avs', stopId: 'A44S', transfers: [] },
-  { name: 'Franklin Av',            stopId: 'A45S', transfers: ['S'] },
+  { name: '59 St–Columbus Circle',  stopId: 'A27S', transfers: ['A','B','D','1'] },
+  { name: '50 St',                   stopId: 'A28S', transfers: ['E'] },
+  { name: '42 St–Port Authority',    stopId: 'A30S', transfers: ['A','E','N','Q','R','W','1','2','3','7','S'] },
+  { name: '34 St–Penn Station',      stopId: 'A31S', transfers: ['A','E','LIRR','NJT','Amtrak'] },
+  { name: '23 St',                   stopId: 'A32S', transfers: ['E'] },
+  { name: '14 St',                   stopId: 'A33S', transfers: ['A','E','L'] },
+  { name: 'West 4 St–Washington Sq', stopId: 'A34S', transfers: ['A','E','B','D','F','M'] },
+  { name: 'Spring St',               stopId: 'A36S', transfers: ['E'] },
+  { name: 'Canal St',                stopId: 'A38S', transfers: ['A','E'] },
+  { name: 'Chambers St',             stopId: 'A40S', transfers: ['A','E','2','3','R','W'] },
+  { name: 'Fulton St',               stopId: 'A41S', transfers: ['A','2','3','4','5','J','Z'] },
+  { name: 'High St',                 stopId: 'A42S', transfers: ['A'] },
+  { name: 'Jay St–MetroTech',        stopId: 'A43S', transfers: ['A','F','R'] },
+  { name: 'Hoyt–Schermerhorn Sts',   stopId: 'A43S', transfers: ['A','G'] },
+  { name: 'Lafayette Av',            stopId: 'A44S', transfers: [] },
+  { name: 'Clinton–Washington Avs',  stopId: 'A45S', transfers: [] },
+  { name: 'Franklin Av',             stopId: 'A46S', transfers: ['S'] },
 ];
-
-// Correct southbound stop IDs for the C/A line (ACE GTFS feed)
-// These are the actual GTFS stop IDs used by MTA
-const STOP_ID_MAP = {
-  '59 St–Columbus Circle':   'A27S',
-  '50 St':                    'A28S',
-  '42 St–Port Authority':     'A30S',
-  '34 St–Penn Station':       'A31S',
-  '23 St':                    'A32S',
-  '14 St':                    'A33S',
-  'West 4 St–Washington Sq':  'A34S',
-  'Spring St':                'A36S',
-  'Canal St':                 'A38S',
-  'Chambers St':              'A40S',
-  'Fulton St':                'A41S',
-  'High St':                  'A42S',
-  'Jay St–MetroTech':         'F18S', // Jay St is shared with F/R
-  'Hoyt–Schermerhorn Sts':    'A43S',
-  'Lafayette Av':             'A44S',
-  'Clinton–Washington Avs':   'A45S',
-  'Franklin Av':              'A46S',
-};
 
 let activeStation = null;
 
@@ -475,34 +451,27 @@ function buildStationList() {
   STATIONS.forEach((station, i) => {
     const item = document.createElement('div');
     item.className = 'station-item';
-    item.dataset.index = i;
 
     const trackCol = document.createElement('div');
     trackCol.className = 'track-col';
-
     const topLine = document.createElement('div');
     topLine.className = 'track-line';
     if (i === 0) topLine.style.background = 'transparent';
-
     const dot = document.createElement('div');
     dot.className = 'station-dot';
-
     const botLine = document.createElement('div');
     botLine.className = 'track-line';
     if (i === STATIONS.length - 1) botLine.style.background = 'transparent';
-
     trackCol.appendChild(topLine);
     trackCol.appendChild(dot);
     trackCol.appendChild(botLine);
 
     const info = document.createElement('div');
     info.className = 'station-info';
-
     const name = document.createElement('div');
     name.className = 'station-name';
     name.textContent = station.name;
     info.appendChild(name);
-
     if (station.transfers.length > 0) {
       const badges = document.createElement('div');
       badges.className = 'transfer-badges';
@@ -523,21 +492,15 @@ function buildStationList() {
 
 function selectStation(idx) {
   activeStation = idx;
-
-  // Update active state
   document.querySelectorAll('.station-item').forEach((el, i) => {
     el.classList.toggle('active', i === idx);
   });
-
-  loadArrivals(STATIONS[idx]);
+  fetchArrivals(STATIONS[idx]);
 }
 
-async function loadArrivals(station) {
+async function fetchArrivals(station) {
   const panel = document.getElementById('arrivalsPanel');
   panel.className = 'arrivals-panel';
-
-  const stopId = STOP_ID_MAP[station.name] || station.stopId;
-
   panel.innerHTML = `
     <div class="panel-station-name">${station.name}</div>
     <div class="panel-meta">A &amp; C · Southbound / Brooklyn bound</div>
@@ -546,64 +509,27 @@ async function loadArrivals(station) {
   `;
 
   try {
-    const res = await fetch(`${BACKEND}?stop=${encodeURIComponent(stopId)}`);
+    const url = `${BACKEND}?stop=${encodeURIComponent(station.stopId)}`;
+    console.log('Fetching:', url);
+    const res = await fetch(url);
     const json = await res.json();
+    console.log('Response:', json);
 
     if (!json.success) throw new Error(json.error || 'API error');
 
-    // The existing backend returns franklin/nostrand — we need to build a
-    // generic per-stop endpoint. Since the backend currently only supports
-    // those two stops, we'll fetch the raw feed ourselves via the same
-    // endpoint pattern and filter client-side.
-    // For now, use a dedicated per-stop query parameter approach.
-    renderArrivals(panel, station, json, stopId);
+    const trains = Array.isArray(json.data)
+      ? json.data
+      : [...(json.data.franklin || []), ...(json.data.nostrand || [])].sort((a,b) => a.minutes - b.minutes).slice(0,3);
+
+    renderTrainCards(panel, station, trains, json.lastUpdated);
   } catch (err) {
-    // Fallback: try fetching from the MTA directly via a CORS proxy or
-    // show a helpful error
     panel.innerHTML = `
       <div class="panel-station-name">${station.name}</div>
       <div class="panel-meta">A &amp; C · Southbound</div>
       <div class="panel-divider"></div>
-      <div class="error-msg">⚠ Could not load arrivals: ${err.message}<br><br>
-        <small>Make sure the backend supports a <code>?stop=</code> query parameter, or extend it to accept per-stop queries.</small>
-      </div>
+      <div class="error-msg">⚠ ${err.message}</div>
     `;
   }
-}
-
-function renderArrivals(panel, station, json, stopId) {
-  // The existing backend keys are 'franklin'/'nostrand'.
-  // Map stop name → key if matched, else look for generic data array
-  const stationKey = station.name.toLowerCase().replace(/[^a-z]/g, '');
-  const franklinKey = 'franklin';
-  const nostrandKey = 'nostrand';
-
-  let trains = [];
-  if (json.data?.franklin && stationKey.includes('franklin')) {
-    trains = json.data.franklin;
-  } else if (json.data?.nostrand && stationKey.includes('nostrand')) {
-    trains = json.data.nostrand;
-  } else if (Array.isArray(json.data)) {
-    trains = json.data;
-  } else {
-    // Backend doesn't support this stop yet — show the message
-    panel.innerHTML = `
-      <div class="panel-station-name">${station.name}</div>
-      <div class="panel-meta">Stop ID: ${stopId} · Southbound</div>
-      <div class="panel-divider"></div>
-      <div class="error-msg">
-        ⚡ <strong>Backend extension needed</strong><br><br>
-        This frontend is ready. Your backend at <code>/api/trains</code> currently only serves 
-        Franklin &amp; Nostrand. To support all stations, add a <code>?stop=STOP_ID</code> 
-        query parameter to your Express route and filter <code>stopTimeUpdate</code> by that stop ID.<br><br>
-        <strong>Stop ID for this station:</strong> <code>${stopId}</code>
-      </div>
-      <button class="refresh-btn" onclick="selectStation(activeStation)">↺ Retry</button>
-    `;
-    return;
-  }
-
-  renderTrainCards(panel, station, trains.slice(0, 3), json.lastUpdated);
 }
 
 function renderTrainCards(panel, station, trains, lastUpdated) {
@@ -613,7 +539,7 @@ function renderTrainCards(panel, station, trains, lastUpdated) {
     <div class="panel-divider"></div>
   `;
 
-  if (trains.length === 0) {
+  if (!trains || trains.length === 0) {
     html += `<div class="no-trains">No upcoming trains in the next 30 minutes.</div>`;
   } else {
     html += `<div class="arrivals-grid">`;
@@ -623,7 +549,6 @@ function renderTrainCards(panel, station, trains, lastUpdated) {
       const timeStr = train.arrivalTime
         ? new Date(train.arrivalTime).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})
         : '';
-
       html += `
         <div class="arrival-card">
           <div class="arrival-route route-${train.routeId}">${train.routeId}</div>
@@ -645,14 +570,8 @@ function renderTrainCards(panel, station, trains, lastUpdated) {
     const t = new Date(lastUpdated).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit', second:'2-digit'});
     html += `<div class="last-updated">Last updated: ${t}</div>`;
   }
-
   html += `<button class="refresh-btn" onclick="selectStation(activeStation)">↺ Refresh</button>`;
   panel.innerHTML = html;
-}
-
-// Override loadArrivals to use the correct function
-async function loadArrivals(station) {
-  await loadArrivalsPerStop(station);
 }
 
 buildStationList();
