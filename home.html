@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="apple-touch-icon" href="/apple_icon.png">
+  <title>C Train — From Here</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Bebas+Neue&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --c-blue: #003882;
+      --c-blue-light: #0050c8;
+      --c-blue-dim: #001f4d;
+      --ink: #0a0a14;
+      --paper: #f0eff0;
+      --muted: #8a8fa8;
+      --line: rgba(0,56,130,0.18);
+      --pill-bg: rgba(0,56,130,0.08);
+      --active: #fff;
+      --arrive-green: #00c97a;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--paper);
+      color: var(--ink);
+      font-family: 'DM Sans', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* === HEADER === */
+    header {
+      background: var(--c-blue);
+      color: #fff;
+      padding: 28px 32px 22px;
+      display: flex;
+      align-items: flex-end;
+      gap: 20px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      border-bottom: 3px solid var(--c-blue-light);
+    }
+
+    .route-badge {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      background: var(--c-blue-light);
+      border: 3px solid rgba(255,255,255,0.35);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 30px;
+      letter-spacing: 1px;
+      color: #fff;
+      flex-shrink: 0;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.3);
+    }
+
+    .header-text h1 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 28px;
+      letter-spacing: 2.5px;
+      line-height: 1;
+    }
+    .header-text p {
+      font-size: 12px;
+      font-weight: 300;
+      color: rgba(255,255,255,0.65);
+      letter-spacing: 0.5px;
+      margin-top: 4px;
+    }
+
+    .direction-tag {
+      margin-left: auto;
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.25);
+      border-radius: 4px;
+      padding: 5px 10px;
+      font-size: 11px;
+      font-family: 'DM Mono', monospace;
+      color: rgba(255,255,255,0.8);
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+    }
+
+    /* === MAIN LAYOUT === */
+    main {
+      display: flex;
+      flex: 1;
+      gap: 0;
+    }
+
+    /* === STATION LIST === */
+    .station-list {
+      width: 320px;
+      flex-shrink: 0;
+      border-right: 1px solid var(--line);
+      overflow-y: auto;
+      background: #fff;
+    }
+
+    .line-track {
+      display: flex;
+      flex-direction: column;
+      padding: 8px 0 40px;
+    }
+
+    .station-item {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      cursor: pointer;
+      position: relative;
+      transition: background 0.15s;
+    }
+
+    .station-item:hover { background: var(--pill-bg); }
+    .station-item.active { background: var(--c-blue); }
+    .station-item.active .station-name { color: #fff; }
+    .station-item.active .transfer-badges span { background: rgba(255,255,255,0.18); color: rgba(255,255,255,0.85); }
+
+    /* Track line */
+    .track-col {
+      width: 56px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      flex-shrink: 0;
+      position: relative;
+    }
+
+    .track-line {
+      width: 3px;
+      background: var(--c-blue);
+      flex: 1;
+      min-height: 20px;
+    }
+
+    .station-dot {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      border: 3px solid var(--c-blue);
+      background: #fff;
+      z-index: 1;
+      flex-shrink: 0;
+      transition: background 0.15s, border-color 0.15s;
+    }
+
+    .station-item.active .station-dot {
+      background: #fff;
+      border-color: rgba(255,255,255,0.7);
+    }
+
+    .station-info {
+      flex: 1;
+      padding: 13px 16px 13px 0;
+    }
+
+    .station-name {
+      font-weight: 500;
+      font-size: 13.5px;
+      color: var(--ink);
+      line-height: 1.2;
+    }
+
+    .transfer-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin-top: 5px;
+    }
+
+    .transfer-badges span {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      background: var(--pill-bg);
+      color: var(--c-blue);
+      border-radius: 3px;
+      padding: 1px 5px;
+      font-weight: 500;
+      letter-spacing: 0.3px;
+    }
+
+    /* === ARRIVALS PANEL === */
+    .arrivals-panel {
+      flex: 1;
+      padding: 40px 48px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .arrivals-panel.empty-state {
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+
+    .empty-icon {
+      font-size: 56px;
+      margin-bottom: 16px;
+      opacity: 0.3;
+    }
+    .empty-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 24px;
+      letter-spacing: 2px;
+      color: var(--muted);
+    }
+    .empty-sub {
+      font-size: 13px;
+      color: var(--muted);
+      margin-top: 6px;
+    }
+
+    .panel-station-name {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 36px;
+      letter-spacing: 2px;
+      color: var(--c-blue);
+      line-height: 1;
+    }
+
+    .panel-meta {
+      font-size: 12px;
+      color: var(--muted);
+      font-family: 'DM Mono', monospace;
+      letter-spacing: 0.5px;
+      margin-top: 4px;
+      text-transform: uppercase;
+    }
+
+    .panel-divider {
+      height: 1px;
+      background: var(--line);
+      margin: 24px 0;
+    }
+
+    .arrivals-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .arrival-card {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 18px 22px;
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      animation: slideIn 0.25s ease forwards;
+      opacity: 0;
+    }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .arrival-card:nth-child(1) { animation-delay: 0.05s; }
+    .arrival-card:nth-child(2) { animation-delay: 0.12s; }
+    .arrival-card:nth-child(3) { animation-delay: 0.19s; }
+
+    .arrival-route {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 22px;
+      color: #fff;
+      flex-shrink: 0;
+    }
+
+    .arrival-route.route-A { background: #0039A6; }
+    .arrival-route.route-C { background: #0039A6; }
+
+    .arrival-details {
+      flex: 1;
+    }
+
+    .arrival-trip {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      color: var(--muted);
+      letter-spacing: 0.5px;
+    }
+
+    .arrival-time-row {
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+      margin-top: 2px;
+    }
+
+    .arrival-mins {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 32px;
+      color: var(--ink);
+      line-height: 1;
+    }
+
+    .arrival-mins.now {
+      color: var(--arrive-green);
+    }
+
+    .arrival-unit {
+      font-size: 13px;
+      color: var(--muted);
+      font-weight: 300;
+    }
+
+    .arrival-clock {
+      margin-left: auto;
+      font-family: 'DM Mono', monospace;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .loading-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .spinner {
+      width: 20px;
+      height: 20px;
+      border: 2px solid var(--line);
+      border-top-color: var(--c-blue);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .error-msg {
+      color: #c0392b;
+      background: #fdf0ef;
+      border: 1px solid #f5c6c2;
+      border-radius: 8px;
+      padding: 14px 18px;
+      font-size: 13px;
+    }
+
+    .no-trains {
+      color: var(--muted);
+      font-size: 14px;
+      padding: 20px 0;
+      font-style: italic;
+    }
+
+    .last-updated {
+      margin-top: 24px;
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      color: var(--muted);
+      letter-spacing: 0.3px;
+    }
+
+    .refresh-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      margin-top: 20px;
+      background: none;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 8px 14px;
+      font-size: 12px;
+      font-family: 'DM Mono', monospace;
+      color: var(--c-blue);
+      cursor: pointer;
+      transition: background 0.15s;
+      letter-spacing: 0.4px;
+    }
+
+    .refresh-btn:hover { background: var(--pill-bg); }
+
+    /* Responsive */
+    @media (max-width: 700px) {
+      main { flex-direction: column; }
+      .station-list { width: 100%; border-right: none; border-bottom: 1px solid var(--line); max-height: 280px; }
+      .arrivals-panel { padding: 24px 20px; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="route-badge">C</div>
+  <div class="header-text">
+    <h1>From Here</h1>
+    <p>A &amp; C trains · Southbound / Brooklyn</p>
+  </div>
+  <div class="direction-tag">↓ Downtown</div>
+</header>
+
+<main>
+  <nav class="station-list" id="stationList">
+    <div class="line-track" id="lineTrack"></div>
+  </nav>
+
+  <section class="arrivals-panel empty-state" id="arrivalsPanel">
+    <div class="empty-icon">🚇</div>
+    <div class="empty-title">Select a Station</div>
+    <div class="empty-sub">Tap any stop to see upcoming A &amp; C trains</div>
+  </section>
+</main>
+
+<script>
+const BACKEND = 'https://gehpark-github-io.onrender.com/api/trains';
+
+// Stop IDs for southbound (toward Brooklyn) on the C line
+// Format: StopId + 'S' = southbound
+const STATIONS = [
+  { name: '59 St–Columbus Circle', stopId: 'A27S', transfers: ['A','B','D','1'] },
+  { name: '50 St',                  stopId: 'A28S', transfers: ['E'] },
+  { name: '42 St–Port Authority',   stopId: 'A30S', transfers: ['A','E','N','Q','R','W','1','2','3','7','S'] },
+  { name: '34 St–Penn Station',     stopId: 'A31S', transfers: ['A','E','LIRR','NJT','Amtrak'] },
+  { name: '23 St',                  stopId: 'A32S', transfers: ['E'] },
+  { name: '14 St',                  stopId: 'A33S', transfers: ['A','E','L'] },
+  { name: 'West 4 St–Washington Sq',stopId: 'A34S', transfers: ['A','E','B','D','F','M'] },
+  { name: 'Spring St',              stopId: 'A36S', transfers: ['E'] },
+  { name: 'Canal St',               stopId: 'A38S', transfers: ['A','E'] },
+  { name: 'Chambers St',            stopId: 'A40S', transfers: ['A','E','2','3','R','W'] },
+  { name: 'Fulton St',              stopId: 'A41S', transfers: ['A','2','3','4','5','J','Z'] },
+  { name: 'High St',                stopId: 'A42S', transfers: ['A'] },
+  { name: 'Jay St–MetroTech',       stopId: 'A41S', transfers: ['A','F','R'] }, // A41S shared
+  { name: 'Hoyt–Schermerhorn Sts',  stopId: 'A42S', transfers: ['A','G'] },
+  { name: 'Lafayette Av',           stopId: 'A43S', transfers: [] },
+  { name: 'Clinton–Washington Avs', stopId: 'A44S', transfers: [] },
+  { name: 'Franklin Av',            stopId: 'A45S', transfers: ['S'] },
+];
+
+// Correct southbound stop IDs for the C/A line (ACE GTFS feed)
+// These are the actual GTFS stop IDs used by MTA
+const STOP_ID_MAP = {
+  '59 St–Columbus Circle':   'A27S',
+  '50 St':                    'A28S',
+  '42 St–Port Authority':     'A30S',
+  '34 St–Penn Station':       'A31S',
+  '23 St':                    'A32S',
+  '14 St':                    'A33S',
+  'West 4 St–Washington Sq':  'A34S',
+  'Spring St':                'A36S',
+  'Canal St':                 'A38S',
+  'Chambers St':              'A40S',
+  'Fulton St':                'A41S',
+  'High St':                  'A42S',
+  'Jay St–MetroTech':         'F18S', // Jay St is shared with F/R
+  'Hoyt–Schermerhorn Sts':    'A43S',
+  'Lafayette Av':             'A44S',
+  'Clinton–Washington Avs':   'A45S',
+  'Franklin Av':              'A46S',
+};
+
+let activeStation = null;
+
+function buildStationList() {
+  const track = document.getElementById('lineTrack');
+  STATIONS.forEach((station, i) => {
+    const item = document.createElement('div');
+    item.className = 'station-item';
+    item.dataset.index = i;
+
+    const trackCol = document.createElement('div');
+    trackCol.className = 'track-col';
+
+    const topLine = document.createElement('div');
+    topLine.className = 'track-line';
+    if (i === 0) topLine.style.background = 'transparent';
+
+    const dot = document.createElement('div');
+    dot.className = 'station-dot';
+
+    const botLine = document.createElement('div');
+    botLine.className = 'track-line';
+    if (i === STATIONS.length - 1) botLine.style.background = 'transparent';
+
+    trackCol.appendChild(topLine);
+    trackCol.appendChild(dot);
+    trackCol.appendChild(botLine);
+
+    const info = document.createElement('div');
+    info.className = 'station-info';
+
+    const name = document.createElement('div');
+    name.className = 'station-name';
+    name.textContent = station.name;
+    info.appendChild(name);
+
+    if (station.transfers.length > 0) {
+      const badges = document.createElement('div');
+      badges.className = 'transfer-badges';
+      station.transfers.forEach(t => {
+        const span = document.createElement('span');
+        span.textContent = t;
+        badges.appendChild(span);
+      });
+      info.appendChild(badges);
+    }
+
+    item.appendChild(trackCol);
+    item.appendChild(info);
+    item.addEventListener('click', () => selectStation(i));
+    track.appendChild(item);
+  });
+}
+
+function selectStation(idx) {
+  activeStation = idx;
+
+  // Update active state
+  document.querySelectorAll('.station-item').forEach((el, i) => {
+    el.classList.toggle('active', i === idx);
+  });
+
+  loadArrivals(STATIONS[idx]);
+}
+
+async function loadArrivals(station) {
+  const panel = document.getElementById('arrivalsPanel');
+  panel.className = 'arrivals-panel';
+
+  const stopId = STOP_ID_MAP[station.name] || station.stopId;
+
+  panel.innerHTML = `
+    <div class="panel-station-name">${station.name}</div>
+    <div class="panel-meta">A &amp; C · Southbound / Brooklyn bound</div>
+    <div class="panel-divider"></div>
+    <div class="loading-row"><div class="spinner"></div> Fetching live arrivals…</div>
+  `;
+
+  try {
+    const res = await fetch(`${BACKEND}?stop=${encodeURIComponent(stopId)}`);
+    const json = await res.json();
+
+    if (!json.success) throw new Error(json.error || 'API error');
+
+    // The existing backend returns franklin/nostrand — we need to build a
+    // generic per-stop endpoint. Since the backend currently only supports
+    // those two stops, we'll fetch the raw feed ourselves via the same
+    // endpoint pattern and filter client-side.
+    // For now, use a dedicated per-stop query parameter approach.
+    renderArrivals(panel, station, json, stopId);
+  } catch (err) {
+    // Fallback: try fetching from the MTA directly via a CORS proxy or
+    // show a helpful error
+    panel.innerHTML = `
+      <div class="panel-station-name">${station.name}</div>
+      <div class="panel-meta">A &amp; C · Southbound</div>
+      <div class="panel-divider"></div>
+      <div class="error-msg">⚠ Could not load arrivals: ${err.message}<br><br>
+        <small>Make sure the backend supports a <code>?stop=</code> query parameter, or extend it to accept per-stop queries.</small>
+      </div>
+    `;
+  }
+}
+
+async function loadArrivalsPerStop(station) {
+  const panel = document.getElementById('arrivalsPanel');
+  panel.className = 'arrivals-panel';
+  const stopId = STOP_ID_MAP[station.name] || station.stopId;
+
+  panel.innerHTML = `
+    <div class="panel-station-name">${station.name}</div>
+    <div class="panel-meta">A &amp; C · Southbound / Brooklyn bound</div>
+    <div class="panel-divider"></div>
+    <div class="loading-row"><div class="spinner"></div> Fetching live arrivals…</div>
+  `;
+
+  try {
+    // Call the backend with stop query param
+    const url = `${BACKEND}?stop=${encodeURIComponent(stopId)}`;
+    const res = await fetch(url);
+    const json = await res.json();
+    if (!json.success) throw new Error(json.error || 'Unknown error');
+
+    trains = []
+    if (json.data && json.data["franklin"]) {
+      trains.push(...json.data["franklin"])
+    }
+    if (json.data && json.data["nostrand"]) {
+      trains.push(...json.data["nostrand"])
+
+    }
+    console.log("trains")
+    console.log(trains)
+    trains.sort((a, b) => a.minutes - b.minutes); 
+    console.log(trains[0])
+    // TODO sort
+    trains = trains.slice(0,3)
+    console.log(trains)
+    renderTrainCards(panel, station, trains, json.lastUpdated);
+  } catch (err) {
+    panel.querySelector('.loading-row') && (panel.innerHTML = panel.innerHTML); // noop guard
+    const errDiv = document.createElement('div');
+    errDiv.className = 'error-msg';
+    errDiv.innerHTML = `⚠ ${err.message}`;
+    panel.appendChild(errDiv);
+  }
+}
+
+function renderArrivals(panel, station, json, stopId) {
+  // The existing backend keys are 'franklin'/'nostrand'.
+  // Map stop name → key if matched, else look for generic data array
+  const stationKey = station.name.toLowerCase().replace(/[^a-z]/g, '');
+  const franklinKey = 'franklin';
+  const nostrandKey = 'nostrand';
+
+  let trains = [];
+  if (json.data?.franklin && stationKey.includes('franklin')) {
+    trains = json.data.franklin;
+  } else if (json.data?.nostrand && stationKey.includes('nostrand')) {
+    trains = json.data.nostrand;
+  } else if (Array.isArray(json.data)) {
+    trains = json.data;
+  } else {
+    // Backend doesn't support this stop yet — show the message
+    panel.innerHTML = `
+      <div class="panel-station-name">${station.name}</div>
+      <div class="panel-meta">Stop ID: ${stopId} · Southbound</div>
+      <div class="panel-divider"></div>
+      <div class="error-msg">
+        ⚡ <strong>Backend extension needed</strong><br><br>
+        This frontend is ready. Your backend at <code>/api/trains</code> currently only serves 
+        Franklin &amp; Nostrand. To support all stations, add a <code>?stop=STOP_ID</code> 
+        query parameter to your Express route and filter <code>stopTimeUpdate</code> by that stop ID.<br><br>
+        <strong>Stop ID for this station:</strong> <code>${stopId}</code>
+      </div>
+      <button class="refresh-btn" onclick="selectStation(activeStation)">↺ Retry</button>
+    `;
+    return;
+  }
+
+  renderTrainCards(panel, station, trains.slice(0, 3), json.lastUpdated);
+}
+
+function renderTrainCards(panel, station, trains, lastUpdated) {
+  let html = `
+    <div class="panel-station-name">${station.name}</div>
+    <div class="panel-meta">A &amp; C · Southbound / Brooklyn bound</div>
+    <div class="panel-divider"></div>
+  `;
+
+  if (trains.length === 0) {
+    html += `<div class="no-trains">No upcoming trains in the next 30 minutes.</div>`;
+  } else {
+    html += `<div class="arrivals-grid">`;
+    trains.forEach(train => {
+      const mins = typeof train.minutes === 'number' ? train.minutes : parseInt(train.minutes);
+      const isNow = mins <= 1;
+      const timeStr = train.arrivalTime
+        ? new Date(train.arrivalTime).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})
+        : '';
+
+      html += `
+        <div class="arrival-card">
+          <div class="arrival-route route-${train.routeId}">${train.routeId}</div>
+          <div class="arrival-details">
+            <div class="arrival-trip">${train.tripId || ''}</div>
+            <div class="arrival-time-row">
+              <span class="arrival-mins ${isNow ? 'now' : ''}">${isNow ? 'Now' : mins}</span>
+              ${!isNow ? '<span class="arrival-unit">min</span>' : ''}
+            </div>
+          </div>
+          ${timeStr ? `<div class="arrival-clock">${timeStr}</div>` : ''}
+        </div>
+      `;
+    });
+    html += `</div>`;
+  }
+
+  if (lastUpdated) {
+    const t = new Date(lastUpdated).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit', second:'2-digit'});
+    html += `<div class="last-updated">Last updated: ${t}</div>`;
+  }
+
+  html += `<button class="refresh-btn" onclick="selectStation(activeStation)">↺ Refresh</button>`;
+  panel.innerHTML = html;
+}
+
+// Override loadArrivals to use the correct function
+async function loadArrivals(station) {
+  await loadArrivalsPerStop(station);
+}
+
+buildStationList();
+</script>
+</body>
+</html>
