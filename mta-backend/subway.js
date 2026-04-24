@@ -21,17 +21,30 @@ app.use(cors({
 
 app.get('/api/trains', async (req, res) => {
   try {
-    const arrivals = await getTrainArrivals();
-    res.json({
-      success: true,
-      data: arrivals,
-      lastUpdated: new Date().toISOString()
-    });
+    const stopId = req.query.stop;
+    console.log('stopId received:', stopId); // ← what stop is being requested?
+    
+    if (stopId) {
+      const feed = await fetchMTAData();
+      
+      // Log ALL stop IDs in the feed so we can see what actually exists
+      const allStopIds = new Set();
+      feed.entity.forEach(entity => {
+        if (!entity.tripUpdate) return;
+        entity.tripUpdate.stopTimeUpdate.forEach(s => allStopIds.add(s.stopId));
+      });
+      console.log('All stop IDs in feed:', [...allStopIds].sort());
+      
+      const arrivals = parseTrainArrivals(feed, stopId);
+      console.log('Arrivals found:', arrivals.length);
+      
+      res.json({ success: true, data: arrivals, lastUpdated: new Date().toISOString() });
+    } else {
+      const arrivals = await getFromHomeTrainArrivals();
+      res.json({ success: true, data: arrivals, lastUpdated: new Date().toISOString() });
+    }
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      error: error.message
-    });
+    res.status(500).json({ success: false, error: error.message });
   }
 });
 
@@ -43,7 +56,7 @@ app.listen(PORT, () => {
 
 if (esMain(import.meta)) {
   // Module run directly.
-    getTrainArrivals();
+    getFromHomeTrainArrivals();
 }
 
 // --------------------------------------------------------- //
@@ -65,8 +78,43 @@ async function fetchMTAData() {
       }
 }
 
+async function getTrainArrivals(stopId) {
+  const feed = await fetchMTAData();
+  return parseTrainArrivals(feed, stopId);
+}
 
-function parseTrainArrivals(feed) {
+function parseTrainArrivals(feed, stopId) {
+  const now = Math.floor(Date.now() / 1000);
+  const arrivals = [];
+
+  feed.entity.forEach(entity => {
+    if (!entity.tripUpdate) return;
+    const trip = entity.tripUpdate.trip;
+    if (trip.routeId !== 'A' && trip.routeId !== 'C') return;
+
+    entity.tripUpdate.stopTimeUpdate.forEach(stopTime => {
+      if (stopTime.stopId !== stopId) return;
+
+      const arrivalTime = stopTime.arrival?.time || stopTime.departure?.time;
+      if (!arrivalTime) return;
+
+      const minutesUntilArrival = Math.floor((arrivalTime - now) / 60);
+      if (minutesUntilArrival >= 0 && minutesUntilArrival <= 30) {
+        arrivals.push({
+          minutes: minutesUntilArrival,
+          arrivalTime: new Date(arrivalTime * 1000),
+          tripId: trip.tripId,
+          routeId: trip.routeId,
+        });
+      }
+    });
+  });
+
+  arrivals.sort((a, b) => a.minutes - b.minutes);
+  return arrivals.slice(0, 3);
+}
+
+function parseFromHomeTrainArrivals(feed) {
   const now = Math.floor(Date.now() / 1000); // Current time in Unix timestamp
   const arrivals = {
     franklin: [],
@@ -143,32 +191,13 @@ function getStationText(stopId) {
 }
 
 // Main function to get train arrivals
-async function getTrainArrivals() {
+async function getFromHomeTrainArrivals() {
   try {
     console.log('Fetching MTA data...');
     const feed = await fetchMTAData();
     
     console.log('Parsing arrivals...');
-    const arrivals = parseTrainArrivals(feed);
-    
-    console.log('\n=== franklin TRAINS ===');
-    if (arrivals.franklin.length === 0) {
-      console.log('No trains scheduled');
-    } else {
-      arrivals.franklin.forEach(train => {
-        console.log(`${train.routeId} ${train.tripId} ${train.minutes} min (${train.arrivalTime.toLocaleTimeString()})`);
-      });
-    }
-
-    console.log('\n=== nostrand TRAINS ===');
-    if (arrivals.nostrand.length === 0) {
-      console.log('No trains scheduled');
-    } else {
-      arrivals.nostrand.forEach(train => {
-        console.log(`${train.routeId} ${train.tripId} ${train.minutes} min (${train.arrivalTime.toLocaleTimeString()})`);
-      });
-    }
-
+    const arrivals = parseFromHomeTrainArrivals(feed);
     return arrivals;
   } catch (error) {
     console.error('Error getting train arrivals:', error);
