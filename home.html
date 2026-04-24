@@ -571,37 +571,6 @@ async function loadArrivals(station) {
   }
 }
 
-async function loadArrivalsPerStop(station) {
-  const panel = document.getElementById('arrivalsPanel');
-  panel.className = 'arrivals-panel';
-  const stopId = STOP_ID_MAP[station.name] || station.stopId;
-
-  panel.innerHTML = `
-    <div class="panel-station-name">${station.name}</div>
-    <div class="panel-meta">A &amp; C · Southbound / Brooklyn bound</div>
-    <div class="panel-divider"></div>
-    <div class="loading-row"><div class="spinner"></div> Fetching live arrivals…</div>
-  `;
-
-  try {
-    const res = await fetch(`${BACKEND}?stop=${encodeURIComponent(stopId)}`);
-    const json = await res.json();
-    if (!json.success) throw new Error(json.error || 'Unknown error');
-
-    const all = [...(json.data.franklin || []), ...(json.data.nostrand || [])];
-    all.sort((a, b) => a.minutes - b.minutes);
-    const trains = all.slice(0, 3);
-    renderTrainCards(panel, station, trains, json.lastUpdated);
-  } catch (err) {
-    panel.innerHTML = `
-      <div class="panel-station-name">${station.name}</div>
-      <div class="panel-meta">A &amp; C · Southbound</div>
-      <div class="panel-divider"></div>
-      <div class="error-msg">⚠ ${err.message}</div>
-    `;
-  }
-}
-
 function renderArrivals(panel, station, json, stopId) {
   // The existing backend keys are 'franklin'/'nostrand'.
   // Map stop name → key if matched, else look for generic data array
