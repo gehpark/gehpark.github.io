@@ -1,0 +1,26 @@
+name: Book Elkmont
+
+on:
+  schedule:
+    - cron: '*/10 * * * *'  # every 10 minutes (GitHub's minimum is 5 min)
+  workflow_dispatch:         # lets you trigger manually too
+
+jobs:
+  book:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: |
+          pip install playwright
+          playwright install chromium --with-deps
+
+      - name: Run booking script
+        env:
+          RECGOV_PASSWORD: ${{ secrets.RECGOV_PASSWORD }}
+        run: python book_elkmont.py
