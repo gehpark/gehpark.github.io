@@ -436,12 +436,12 @@ function addConstraint() {
  div.innerHTML = `
    <label>letters</label>
    <input class="c-letters" id="cl${id}" maxlength="15" placeholder="e.g. ING"
-          oninput="this.value=this.value.toUpperCase().replace(/[^A-Z]/g,'')">
+          oninput="this.value=this.value.toUpperCase().replace(/[^A-Z?]/g,'')">
    <label>at</label>
    <select class="c-type" id="ct${id}" onchange="togglePos(${id})">
-     <option value="any">anywhere</option>
+     <option value="any" selected>anywhere</option>
      <option value="start">start of word</option>
-     <option value="pos" selected>position</option>
+     <option value="pos">position</option>
      <option value="end">end of word</option>
    </select>
    <input class="c-pos" id="cp${id}" type="number" min="1" max="20" value="1"
@@ -494,7 +494,12 @@ function getConstraints() {
 // ═══════════════════════════════════════════════════════════════════
 // Core word-finding logic
 // ═══════════════════════════════════════════════════════════════════
-
+function patternToRegex(pattern) {
+  const regexStr = pattern.split('_').map(segment =>
+    segment.split('').map(ch => ch === '?' ? '[A-Z]' : ch).join('')
+  ).join('[A-Z]*');
+  return new RegExp(regexStr);
+}
 
 /**
 * Given a word and a constraint, returns { needed, fs, fe } where:
@@ -506,23 +511,29 @@ function neededLetters(word, c) {
  const sub = c.letters;
  let fs, fe;
 
+const isPattern = /[?_]/.test(sub);
+const re = isPattern ? patternToRegex(sub) : null;
+
+function matches(slice) {
+  return isPattern ? re.test(slice) && re.exec(slice)?.[0] === slice : slice === sub;
+}
 
  if (c.type === 'start') {
    if (word.length < sub.length) return null;
-   if (word.slice(0, sub.length) !== sub) return null;
+   if (!matches(word.slice(0, sub.length))) return null;
    fs = 0; fe = sub.length;
 
 
  } else if (c.type === 'end') {
    if (word.length < sub.length) return null;
-   if (word.slice(-sub.length) !== sub) return null;
+   if (!matches(word.slice(-sub.length))) return null;
    fs = word.length - sub.length; fe = word.length;
 
 
  } else { // 'pos' — 1-indexed
    const p = c.pos - 1; // convert to 0-indexed
    if (p < 0 || p + sub.length > word.length) return null;
-   if (word.slice(p, p + sub.length) !== sub) return null;
+   if (!matches(word.slice(p, p + sub.length))) return null;
    fs = p; fe = p + sub.length;
  }
 
