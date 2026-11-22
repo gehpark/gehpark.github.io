@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MTA AC Train - 523 Franklin</title>
+    <title>MTA Downtown Trains - 125 St</title>
     <style>
         * {
             margin: 0;
@@ -15,6 +15,7 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             min-height: 100vh;
             padding: 20px;
+            background: #f4f6f9;
         }
 
         .container {
@@ -22,25 +23,26 @@
             margin: 0 auto;
         }
 
-        .station-name {
-            font-size: 32px;
-            font-weight: bold;
-            color: #333;
-            margin-bottom: 5px;
+        .station-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 16px;
         }
 
-        .line-badge {
-            display: inline-block;
-            background: #0039A6;
-            color: white;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            text-align: center;
-            line-height: 40px;
-            font-size: 24px;
+        .station-name {
+            font-size: 28px;
             font-weight: bold;
-            margin-right: 10px;
+            color: #222;
+        }
+
+        .direction-tag {
+            margin-left: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #fff;
+            background: #333;
+            padding: 4px 10px;
+            border-radius: 12px;
         }
 
         .last-updated {
@@ -53,26 +55,53 @@
             background: white;
             border-radius: 15px;
             padding: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.12);
         }
 
         .section-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
             font-size: 20px;
             font-weight: bold;
             color: #333;
-            margin-top: 10px;
-            margin-bottom: 0px;
-            padding-bottom: 0px;
+            margin-top: 14px;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
             border-bottom: 2px solid #f0f0f0;
+        }
+
+        .section-title:first-of-type {
+            margin-top: 0;
+        }
+
+        .badge {
+            display: inline-block;
+            color: white;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 28px;
+            font-size: 15px;
+            font-weight: bold;
+        }
+
+        .badge-23 {
+            background: #EE352E;
+        }
+
+        .badge-45 {
+            background: #00933C;
         }
 
         .arrival-item {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 10px;
-            margin-bottom: 15px;
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 12px 16px;
+            margin-bottom: 12px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #dce4f0 100%);
             border-radius: 10px;
             transition: transform 0.2s;
         }
@@ -81,25 +110,32 @@
             transform: translateX(5px);
         }
 
-        .direction {
+        .route-pill {
             font-size: 18px;
-            font-weight: 600;
+            font-weight: 700;
             color: white;
-            background: #0039A6;
-            padding: 8px 12px;
+            padding: 6px 14px;
             border-radius: 20px;
         }
 
+        .route-23 {
+            background: #EE352E;
+        }
+
+        .route-45 {
+            background: #00933C;
+        }
+
         .time {
-            font-size: 56px;
+            font-size: 44px;
             font-weight: bold;
-            color: #0039A6;
+            color: #222;
         }
 
         .no-trains {
             text-align: center;
-            padding: 40px;
-            color: #999;
+            padding: 28px;
+            color: #888;
             font-size: 16px;
         }
 
@@ -107,7 +143,7 @@
             text-align: center;
             padding: 20px;
             color: #666;
-            font-size: 18px;
+            font-size: 16px;
         }
 
         .error {
@@ -116,69 +152,59 @@
             color: #c33;
             padding: 15px;
             border-radius: 10px;
-            margin-bottom: 20px;
-        }
-
-        .refresh-btn {
-            background: #0039A6;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 8px;
-            font-size: 16px;
-            cursor: pointer;
-            transition: background 0.3s;
-        }
-
-        .refresh-btn:hover {
-            background: #002a7a;
+            margin-bottom: 16px;
         }
     </style>
 </head>
 <body>
     <div class="container">
+        <div class="station-header">
+            <div class="station-name">125 St</div>
+            <div class="direction-tag">Downtown</div>
+        </div>
+
         <div class="arrivals-container">
-
             <div id="errorContainer"></div>
-            
-            <div class="section-title">Franklin Av</div>
-            <div id="franklinTrains" class="loading">Loading train data...</div>
 
-            <div class="section-title" style="margin-top: 0px;">Nostrand Av</div>
-            <div id="nostrandTrains" class="loading">Loading train data...</div>
+            <div class="section-title">
+                <span class="badge badge-23">2</span>
+                <span class="badge badge-23">3</span>
+                <span>125 St (Downtown)</span>
+            </div>
+            <div id="line23Downtown" class="loading">Loading train data...</div>
 
-            <!-- <button class="refresh-btn" onclick="loadTrainData()">Refresh Data</button> -->
+            <div class="section-title">
+                <span class="badge badge-45">4</span>
+                <span class="badge badge-45">5</span>
+                <span>125 St (Downtown)</span>
+            </div>
+            <div id="line45Downtown" class="loading">Loading train data...</div>
         </div>
 
-        <div class="header">
-            <div class="last-updated" id="lastUpdated">Loading...</div>
-        </div>
+        <div class="last-updated" id="lastUpdated">Loading...</div>
     </div>
 
     <script>
-
-        function displayTrains(trains, containerId) {
+        function displayTrains(trains, containerId, routeClass) {
             const container = document.getElementById(containerId);
-            
+
             if (!trains || trains.length === 0) {
-                container.innerHTML = '<div class="no-trains">No trains scheduled</div>';
+                container.innerHTML = '<div class="no-trains">No downtown trains scheduled</div>';
                 return;
             }
 
             container.innerHTML = trains.map(train => `
                 <div class="arrival-item">
-                    <div class="direction">${train.routeId}</div>
-                    <div>
-                        <div class="time">${train.minutes} min</div>
-                    </div>
+                    <div class="route-pill ${routeClass}">${train.routeId}</div>
+                    <div class="time">${train.minutes} min</div>
                 </div>
             `).join('');
         }
 
         function updateLastUpdated() {
             const now = new Date();
-            const timeString = now.toLocaleTimeString('en-US', { 
-                hour: 'numeric', 
+            const timeString = now.toLocaleTimeString('en-US', {
+                hour: 'numeric',
                 minute: '2-digit',
                 second: '2-digit'
             });
@@ -186,35 +212,34 @@
         }
 
         async function loadTrainData() {
-            console.log("Loading train data...");
+            const errorContainer = document.getElementById('errorContainer');
+            errorContainer.innerHTML = '';
+
             try {
-                // local test line
-                // const response = await fetch('http://localhost:3000/api/trains');
-                const response = await fetch('https://gehpark-github-io.onrender.com/api/trains')
+                // Update your backend /api/trains endpoint to return these arrays for 125 St southbound:
+                // result.data.line23Downtown and result.data.line45Downtown
+                const response = await fetch('https://gehpark-github-io.onrender.com/api/trains');
                 const result = await response.json();
-                
+
                 if (result.success) {
-                    displayTrains(result.data.franklin, 'franklinTrains');
-                    displayTrains(result.data.nostrand, 'nostrandTrains');
-                    console.log("Data loaded successfully");
+                    const line23 = (result.data.line23Downtown || []).filter(t => ['2', '3'].includes(t.routeId));
+                    const line45 = (result.data.line45Downtown || []).filter(t => ['4', '5'].includes(t.routeId));
+
+                    displayTrains(line23, 'line23Downtown', 'route-23');
+                    displayTrains(line45, 'line45Downtown', 'route-45');
                 } else {
-                    document.getElementById('errorContainer').innerHTML = 
-                        `<div class="error">Error: ${result.error}</div>`;
+                    errorContainer.innerHTML = `<div class="error">Error: ${result.error}</div>`;
                 }
             } catch (error) {
                 console.error('Error loading train data:', error);
-                document.getElementById('errorContainer').innerHTML = 
-                    `<div class="error">Cannot connect to server.</div>`;
+                errorContainer.innerHTML = `<div class="error">Cannot connect to server.</div>`;
             }
 
             updateLastUpdated();
         }
 
-        // Initial load
         loadTrainData();
-
-        setInterval(loadTrainData, 30000 /*30 seconds*/ );
-
+        setInterval(loadTrainData, 30000);
     </script>
 </body>
 </html>
