@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>10027 Weather</title>
+    <style>
+      body {
+        margin: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        font-family: 'Times New Roman', monospace;
+        background: #ffffff;
+      }
+
+      .weather-box {
+        text-align: center;
+      }
+
+      .weather-emoji {
+        font-size: 96px;
+        line-height: 1.1;
+      }
+
+      .weather-label {
+        margin-top: 12px;
+        font-size: 20px;
+        color: #666666;
+      }
+    </style>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+  </head>
+  <body>
+    <div class="weather-box">
+      <div class="weather-emoji" id="weatherEmoji">⏳</div>
+      <div class="weather-label">ZIP 10027 · Rest of Today</div>
+    </div>
+
+    <script>
+      const SERVICE_NAME = 'umbrella-api'; // Replace with your Render service name if different
+      const UMBRELLA_URL = `https://${SERVICE_NAME}.onrender.com/umbrella`;
+
+      function updateWeather() {
+        $.getJSON(UMBRELLA_URL)
+          .done(function (data) {
+            $('#weatherEmoji').text(data.emoji);
+          })
+          .fail(function () {
+            $('#weatherEmoji').text('❓');
+          });
+      }
+
+      updateWeather();
+      setInterval(updateWeather, 15 * 60 * 1000);
+    </script>
+  </body>
+</html>
+
