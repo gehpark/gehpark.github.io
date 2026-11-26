@@ -2,10 +2,10 @@
   "name": "my-node-app",
   "version": "1.0.0",
   "description": "A basic Node.js application example.",
-  "main": "subway.js",
+  "main": "backend.js",
   "scripts": {
-    "start": "node subway.js",
-    "dev": "nodemon subway.js",
+    "start": "node backend.js",
+    "dev": "nodemon backend.js",
     "test": "jest"
   },
   "dependencies": {
