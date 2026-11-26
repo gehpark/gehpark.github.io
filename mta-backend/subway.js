@@ -13,6 +13,9 @@ const STOP_IDS = {
 
 const MTA_123456_URL = 'https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct%2Fgtfs';
 
+const UMBRELLA_LAT = 40.8116;
+const UMBRELLA_LON = -73.9536;
+
 app.use(cors({
   origin: [
     'https://gehpark.github.io',
@@ -91,6 +94,27 @@ function parse125DowntownArrivals(feed) {
   return arrivals;
 }
 
+function determineUmbrellaEmoji(codes) {
+  if (codes.some(c => [95, 96, 99].includes(c))) {
+    return '⛈️';
+  }
+  if (codes.some(c => (c >= 71 && c <= 77) || c === 85 || c === 86)) {
+    return '❄️';
+  }
+  if (codes.some(c => (c >= 51 && c <= 67) || (c >= 80 && c <= 82))) {
+    return '☔';
+  }
+
+  const currentCode = codes[0] ?? 0;
+  if (currentCode === 0 || currentCode === 1) {
+    return '☀️';
+  }
+  if (currentCode === 2) {
+    return '⛅';
+  }
+  return '☁️';
+}
+
 app.get('/api/trains', async (req, res) => {
   try {
     const feed = await fetchMTAData();
@@ -109,6 +133,30 @@ app.get('/api/trains', async (req, res) => {
   }
 });
 
+app.get('/umbrella', async (req, res) => {
+  try {
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${UMBRELLA_LAT}&longitude=${UMBRELLA_LON}&hourly=weather_code&timezone=America%2FNew_York&forecast_days=1`;
+    const response = await fetch(url);
+    const data = await response.json();
+
+    const nyHourString = new Date().toLocaleString('en-US', {
+      timeZone: 'America/New_York',
+      hour: 'numeric',
+      hour12: false
+    });
+    const currentHour = parseInt(nyHourString, 10) % 24;
+    const remainingCodes = data.hourly.weather_code.slice(currentHour);
+
+    res.json({
+      emoji: determineUmbrellaEmoji(remainingCodes),
+      checkedHours: remainingCodes.length
+    });
+  } catch (error) {
+    console.error('Error fetching weather for /umbrella:', error);
+    res.status(500).json({ error: 'Failed to fetch weather data' });
+  }
+});
+
 const PORT = process.env.PORT || 3000;
 if (esMain(import.meta)) {
   app.listen(PORT, () => {
@@ -117,3 +165,4 @@ if (esMain(import.meta)) {
 }
 
 export default app;
+
